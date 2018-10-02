@@ -20,35 +20,19 @@
        (- (* x (cos r)) (* y (sin r)))
        (+ (* x (sin r)) (* y (cos r))))))
 
-
-; beziers
-(define (bezier-two pa pb)
-  (λ (t)
-    (vec-add
-       (vec-mult t pb)
-       (vec-mult (- 1 t) pa))))
-
-(define (bezier-three pa pb pc)
-  (λ (t)
-    (vec-add
-       (vec-mult t
-                 ((bezier-two pb pc) t))
-       (vec-mult (- 1 t)
-                 ((bezier-two pa pb) t)))))
-
+; [vector] -> Float -> [vector]
 (define (bezier points)
     (lambda (t) 
       (match points
         [(list a) a]
         [ _ (let
-          ([first-curve  (bezier (rest (reverse points)))]
+          ([first-curve  (bezier (drop-right points 1))]
           [second-curve (bezier (rest points))])
           (vec-add 
-            (vec-mult t (first-curve t))
-            (vec-mult (- 1 t) (second-curve t))))])))
+            (vec-mult t (second-curve t))
+            (vec-mult (- 1 t) (first-curve t))))])))
 
-(define bez (bezier '((vector 1 2) (vector 3 4))))
-
+; [vector] -> Unit
 (define (draw-curve-points ps)
   (let
       ([p (new dc-path%)]
@@ -62,5 +46,5 @@
 (define (draw-bezier-three pa pb pc)
    (draw-curve-points
       (map
-         (bezier-three pa pb pc)
+         (bezier (list pa pb pc))
          (range 0 1 0.01))))

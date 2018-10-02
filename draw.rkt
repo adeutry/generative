@@ -6,10 +6,10 @@
 (require "draw-utils.rkt")
           
 ; drawing stuff
-(define target (make-bitmap 1000 1000))
+(define target (make-bitmap 1500 1500))
 (define dc (new bitmap-dc% [bitmap target]))
 
-(send dc scale 100 100)
+(send dc scale 75 75)
 (send dc translate 0 0)
 (send dc set-brush "white" 'transparent)
 (send dc set-pen "black" 0.01 'solid)
@@ -25,11 +25,15 @@
                     bot
                     (span-func x)
                     top))
-       (reverse (range 0 1 0.1)))))
+       (reverse (range 0 1 0.30)))))
 
 (map
-  (λ (d) (for-each (λ (p) (send dc draw-path p)) (curves (vector 5 5) d)))
-  (range 0 360 30))
+  (lambda (x)
+    (map
+      (λ (d) (for-each (λ (p) (send dc draw-path p)) 
+                       (curves (vector x 3) d)))
+      (range 0 360 (* 4 x))))
+    (range 4 20 4))
 
 (send target save-file "pic.png" 'png)
 (make-object image-snip% target)
