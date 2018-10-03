@@ -18,11 +18,15 @@
 (define (leaf pos-vec angle)
   (let* ([rotate-and-move (lambda (a) (vec-add pos-vec (vec-rotate a angle)))]
          [bot pos-vec]
+         [bot-pos 1]
+         [top-pos 3]
+         [bot-width 4]
+         [top-width 1]
          [top      (rotate-and-move (vector 7 0))]
-         [h1-left  (rotate-and-move (vector 2 -4))]
-         [h1-right (rotate-and-move (vector 2 4))]
-         [h2-left  (rotate-and-move (vector 4 -1))]
-         [h2-right (rotate-and-move (vector 4 1))]
+         [h1-left  (rotate-and-move (vector bot-pos (- bot-width)))]
+         [h1-right (rotate-and-move (vector bot-pos bot-width))]
+         [h2-left  (rotate-and-move (vector top-pos (- top-width)))]
+         [h2-right (rotate-and-move (vector top-pos top-width))]
          [h1-span-func (bezier (list h1-left h1-right))]
          [h2-span-func (bezier (list h2-left h2-right))])
   (map (λ (x) (draw-bezier (list
