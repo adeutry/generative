@@ -43,20 +43,8 @@
       (λ (v) (send p line-to (vector-ref v 0) (vector-ref v 1))) r)
     p))
 
-(define (draw-bezier-three pa pb pc)
-   (draw-curve-points
-      (map
-         (bezier (list pa pb pc))
-         (range 0 1 0.01))))
-
 (define (draw-bezier points)
    (draw-curve-points
       (map
          (bezier points)
-         (range 0 1 0.01))))
-
-(define foo (bezier (list
-  (vector 2 2)
-  (vector 1 4)
-  (vector 3 6)
-  (vector 4 4))))
+         (range 0 1 0.001))))
