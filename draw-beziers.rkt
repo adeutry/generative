@@ -6,7 +6,7 @@
 (require "draw-utils.rkt")
           
 ; drawing stuff
-(define target (make-bitmap 1500 1500))
+(define target (make-bitmap 1000 1000))
 (define dc (new bitmap-dc% [bitmap target]))
 
 (send dc scale 75 75)
@@ -15,7 +15,7 @@
 (send dc set-pen "black" 0.01 'solid)
 (send dc set-smoothing 'aligned)
 
-(define (curves pos-vec angle)
+#;(define (curves pos-vec angle)
   (let* ([bot pos-vec]
          [top  (vec-add pos-vec (vec-rotate (vector 2 0) angle))]
          [left (vec-add pos-vec (vec-rotate (vector 0.75 -1) angle))]
@@ -27,13 +27,13 @@
                     top))
        (reverse (range 0 1 0.1)))))
 
-(map
-  (lambda (x)
-    (map
-      (λ (d) (for-each (λ (p) (send dc draw-path p)) 
-                       (curves (vector x 3) d)))
-      (range 0 360 (* 5 x))))
-    (range 4 20 4))
+(define b (draw-bezier (list
+  (vector 1 1)
+  (vector 2 4)
+  (vector 4 2)
+  (vector 7 1))))
+
+(send dc draw-path b) 
 
 (send target save-file "pic.png" 'png)
 (make-object image-snip% target)

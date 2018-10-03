@@ -48,3 +48,15 @@
       (map
          (bezier (list pa pb pc))
          (range 0 1 0.01))))
+
+(define (draw-bezier points)
+   (draw-curve-points
+      (map
+         (bezier points)
+         (range 0 1 0.01))))
+
+(define foo (bezier (list
+  (vector 2 2)
+  (vector 1 4)
+  (vector 3 6)
+  (vector 4 4))))
