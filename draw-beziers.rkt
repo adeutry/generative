@@ -15,25 +15,32 @@
 (send dc set-pen "black" 0.01 'solid)
 (send dc set-smoothing 'aligned)
 
-#;(define (curves pos-vec angle)
-  (let* ([bot pos-vec]
-         [top  (vec-add pos-vec (vec-rotate (vector 2 0) angle))]
-         [left (vec-add pos-vec (vec-rotate (vector 0.75 -1) angle))]
-         [right (vec-add pos-vec (vec-rotate (vector 0.75 1) angle))]
-         [span-func (bezier (list left right))]) ; use two-point bezier curve for horizontal span
-  (map (λ (x) (draw-bezier-three
+(define (leaf pos-vec angle)
+  (let* ([rotate-and-move (lambda (a) (vec-add pos-vec (vec-rotate a angle)))]
+         [bot pos-vec]
+         [top      (rotate-and-move (vector 7 0))]
+         [h1-left  (rotate-and-move (vector 2 -4))]
+         [h1-right (rotate-and-move (vector 2 4))]
+         [h2-left  (rotate-and-move (vector 4 -1))]
+         [h2-right (rotate-and-move (vector 4 1))]
+         [h1-span-func (bezier (list h1-left h1-right))]
+         [h2-span-func (bezier (list h2-left h2-right))])
+  (map (λ (x) (draw-bezier (list
                     bot
-                    (span-func x)
-                    top))
+                    (h1-span-func x)
+                    (h2-span-func x)
+                    top)))
        (reverse (range 0 1 0.1)))))
 
-(define b (draw-bezier (list
+#;(define b (draw-bezier (list
   (vector 1 1)
   (vector 2 4)
   (vector 4 2)
   (vector 7 1))))
 
-(send dc draw-path b) 
+(for-each (λ (p) 
+   (send dc draw-path p)) 
+       (leaf (vector 4 4) 0))
 
 (send target save-file "pic.png" 'png)
 (make-object image-snip% target)
