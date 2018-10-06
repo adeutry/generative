@@ -1,4 +1,4 @@
 #!/bin/bash
 
-FILENAME=$1
-echo $FILENAME | entr -s "racket -t $FILENAME && open pic.png"
+ls draw-*.rkt | entr racket -t /_ &
+ls *.png | entr open -g /_
