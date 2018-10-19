@@ -19,6 +19,20 @@
 (define (vec-add va vb)
   (vector-map (λ (a b) (+ a b)) va vb))
 
+(define (vec-sub va vb)
+  (vector-map (λ (a b) (- a b)) va vb))
+
+(define (vec-norm v)
+  (vec-mult
+    (/ 1 (vec-magnitude v)) 
+    v))
+
+(define (vec-magnitude v)
+  (sqrt
+    (foldl + 0
+      (map (lambda (x) (sqr x))
+        (vector->list v)))))
+
 (define (vec-rotate v deg)
   (let ([x (vector-ref v 0)]
         [y (vector-ref v 1)]
@@ -57,16 +71,44 @@
          (range 0 1 0.001))))
 
 
+
+; represents an anchor point in a bezier curve
 (struct anchor-point (pos in-vec out-vec))
 
-(define (draw-compound-bezier anchor-points)
+(define (compound-bezier dc anchor-points)
   (map (lambda (anchors)
-    (bezier-from-anchors (first anchors) (second anchors))
-    (sliding anchor-points 2))))
+    (bezier-from-anchors dc (first anchors) (second anchors)))
+    (sliding anchor-points 2)))
+
+; like compound-bezier but the first and last anchors are connected
+(define (compound-bezier-loop dc anchor-points)
+  (compound-bezier dc (cons (last anchor-points) anchor-points)))
+
+; given a list of vectors representing points attempts to create a smooth
+; loop joining all of the points. Returns anchor points representing the 
+; resulting compound bezier.
+(define (points-to-loop points)
+  (map 
+    (lambda (trio) (match trio
+      [(list p1 p2 p3) 
+        (anchor-point 
+          p2
+          (vec-norm (vec-sub p1 p3))
+          (vec-norm (vec-sub p3 p1))
+          )]))
+  (sliding-loop points 3)))
+
+(define (points-to-loop-bezier dc points)
+  (compound-bezier-loop dc (points-to-loop points)))
 
 (define (sliding l n)
   (if (< (length l) n) '()
     (cons (take l n) (sliding (rest l) n))))
+
+(define (sliding-loop l n) 
+  (sliding
+    (append (take-right l (- n 1)) l)
+     n))
 
 ; draws a four point bezier from two anchor points
 (define (bezier-from-anchors dc a1 a2)
@@ -83,10 +125,6 @@
       (anchor-point-pos a2))))
 
 (define (debug-bezier-from-anchors dc a1 a2)
-    ; anchor points
-    (send dc set-brush "red" 'solid) 
-    (debug-point dc (anchor-point-pos a1))
-    (debug-point dc (anchor-point-pos a2))
     ; control points
     (send dc set-brush "green" 'solid) 
     (let 
@@ -97,9 +135,9 @@
         [a2-control-point-pos
           (vec-add 
             (anchor-point-pos a2) 
-            (anchor-point-in-vec a2))]) 
-        (debug-point dc a1-control-point-pos)
-        (debug-point dc a2-control-point-pos)
+            (anchor-point-in-vec a2))]
+      ) 
+        (send dc set-pen "green" 0.01 'solid)
         (send dc draw-line 
           (vector-ref (anchor-point-pos a1) 0)
           (vector-ref (anchor-point-pos a1) 1)
@@ -109,7 +147,14 @@
           (vector-ref (anchor-point-pos a2) 0)
           (vector-ref (anchor-point-pos a2) 1)
           (vector-ref a2-control-point-pos 0)
-          (vector-ref a2-control-point-pos 1)))
+          (vector-ref a2-control-point-pos 1))
+        (send dc set-pen "black" 0.01 'solid)
+        (debug-point dc a1-control-point-pos)
+        (debug-point dc a2-control-point-pos))
+    ; anchor points
+    (send dc set-brush "red" 'solid) 
+    (debug-point dc (anchor-point-pos a1))
+    (debug-point dc (anchor-point-pos a2))
     (reset-debug-opts dc))
 
 (define (debug-point dc v)
