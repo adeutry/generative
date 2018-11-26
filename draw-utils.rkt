@@ -41,6 +41,16 @@
        (- (* x (cos r)) (* y (sin r)))
        (+ (* x (sin r)) (* y (cos r))))))
 
+(define (curve-interval-length f a b p)
+  (apply +
+         (map
+          (λ (x) (match x 
+                   [(list v1 v2)
+                    (vec-magnitude
+                     (vec-sub (f v2) (f v1)))]))
+          (sliding (range a b p) 2))))
+
+
 ; [vector] -> Float -> [vector]
 (define (bezier points)
     (lambda (t) 

@@ -6,10 +6,10 @@
 (require "draw-utils.rkt")
           
 ; drawing stuff
-(define target (make-bitmap 1500 1500))
+(define target (make-bitmap 2500 2500))
 (define dc (new bitmap-dc% [bitmap target]))
 
-(send dc scale 140 140)
+(send dc scale 200 200)
 (send dc translate 0 0)
 (send dc set-brush "white" 'transparent)
 (send dc set-pen "black" 0.01 'solid)
@@ -37,22 +37,24 @@
        (reverse (range 0 1 0.1)))))
 
 (define a (bezier (list
-  (vector 5 10))))
+  (vector 1 1)
+  (vector 1 9))))
 
 (define b (bezier (list
-  (vector 1 1)
-  (vector 1 5)
-  (vector 1 6)
-  (vector 1 8))))
+  (vector 3 -1)
+  (vector 5 5)
+  (vector 7 9)
+  (vector 9 15))))
 
 (define c (bezier (list
-  (vector 10 8)
-  (vector 9 8)
-  (vector 8 8)
+  (vector 10 3)
+  (vector 9 7)
+  (vector 8 5)
   (vector 7 8))))
 
 (define d (bezier (list
-  (vector 8 10)
+  (vector 10 1)
+  (vector 10 7)
   )))
 
 #;(for-each (λ (p) 
@@ -66,7 +68,7 @@
         (b p)
         (c p)
         (d p)))))
-  (range 0 1 0.05))
+  (range 0 1 0.02))
 
 (send target save-file "pic.png" 'png)
 (make-object image-snip% target)
